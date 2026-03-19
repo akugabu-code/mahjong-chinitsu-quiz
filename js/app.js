@@ -408,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ntR = Math.round(analysis.noTerminalStats.rate * 100);
         const gap = ntR - tR;
         html += `<tr${gap >= 8 ? ' class="weakness-row-weak"' : ''}>`;
-        html += `<td>端牌 (1・9)</td>`;
+        html += `<td>端牌(1・9)</td>`;
         html += `<td>${tR}%<small> (${analysis.terminalStats.count}問)</small></td>`;
         html += `<td>${ntR}%<small> (${analysis.noTerminalStats.count}問)</small></td>`;
         html += `<td>${gap > 0 ? '-' : '+'}${Math.abs(gap)}%</td>`;
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const neR = Math.round(analysis.noEntotsuStats.rate * 100);
         const gap = neR - eR;
         html += `<tr${gap >= 8 ? ' class="weakness-row-weak"' : ''}>`;
-        html += `<td>煙突形 (3334型)</td>`;
+        html += `<td>煙突形(3334型)</td>`;
         html += `<td>${eR}%<small> (${analysis.entotsuStats.count}問)</small></td>`;
         html += `<td>${neR}%<small> (${analysis.noEntotsuStats.count}問)</small></td>`;
         html += `<td>${gap > 0 ? '-' : '+'}${Math.abs(gap)}%</td>`;
