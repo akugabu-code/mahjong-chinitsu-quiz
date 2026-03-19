@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>清一色マスター</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 id="title-home" style="cursor:pointer">清一色マスター</h1>
+    </header>
+
+    <!-- 統計バー -->
+    <div class="stats-bar" id="stats-bar">
+      <span class="stats-empty">出題ボタンを押して始めましょう</span>
+    </div>
+
+    <!-- 設定パネル -->
+    <div class="settings-panel" id="settings-panel">
+      <div class="settings-row">
+        <div class="setting-group">
+          <label>ゲーム:</label>
+          <div class="btn-group" id="gametype-group">
+            <button data-value="free" class="active">フリー</button>
+            <button data-value="timeattack">タイムアタック</button>
+            <button data-value="survival">サバイバル</button>
+            <button data-value="training">特訓</button>
+            <button data-value="customhand">✏️ 手牌入力</button>
+            <button data-value="gacha">🎰 ガチャ</button>
+            <button data-value="review">★ 振り返る</button>
+            <button data-value="leaderboard">🏆 ランキング</button>
+            <button data-value="weakness">📊 苦手分析</button>
+          </div>
+        </div>
+      </div>
+      <div id="gametype-desc" class="mode-hint"></div>
+
+      <div class="settings-row game-settings">
+        <div class="setting-group">
+          <label>モード:</label>
+          <div class="btn-group" id="mode-group">
+            <button data-value="tenpai" class="active">テンパイ</button>
+            <button data-value="iishanten">イーシャンテン</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>副露:</label>
+          <div class="btn-group" id="open-group">
+            <button data-value="closed" class="active">門前</button>
+            <button data-value="open">1副露</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>牌種:</label>
+          <div class="btn-group" id="suit-group">
+            <button data-value="random" class="active">ランダム</button>
+            <button data-value="man">萬子</button>
+            <button data-value="sou">索子</button>
+            <button data-value="pin">筒子</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row game-settings">
+        <div class="setting-group">
+          <label>難易度:</label>
+          <div class="btn-group" id="difficulty-group">
+            <button data-value="easy">初級</button>
+            <button data-value="medium" class="active">中級</button>
+            <button data-value="hard">上級</button>
+          </div>
+        </div>
+      </div>
+      <div id="mode-desc" class="mode-hint game-settings"></div>
+
+      <!-- 特訓フィルター -->
+      <div class="settings-row" id="training-filters" style="display:none">
+        <div class="setting-group">
+          <label>出題対象:</label>
+          <div class="btn-group" id="training-kind-group">
+            <button data-value="wrong" class="active">間違えた問題</button>
+            <button data-value="starred">お気に入り</button>
+            <button data-value="custom">✅ 作成した問題</button>
+          </div>
+        </div>
+      </div>
+      <div class="settings-row" id="training-filters-sub" style="display:none">
+        <div class="setting-group">
+          <label>モード:</label>
+          <div class="btn-group" id="training-mode-group">
+            <button data-value="all" class="active">全て</button>
+            <button data-value="tenpai">テンパイ</button>
+            <button data-value="iishanten">イーシャンテン</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>副露:</label>
+          <div class="btn-group" id="training-open-group">
+            <button data-value="all" class="active">全て</button>
+            <button data-value="closed">門前</button>
+            <button data-value="open">副露</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>難易度:</label>
+          <div class="btn-group" id="training-difficulty-group">
+            <button data-value="all" class="active">全て</button>
+            <button data-value="easy">初級</button>
+            <button data-value="medium">中級</button>
+            <button data-value="hard">上級</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label>出題順:</label>
+          <div class="btn-group" id="training-order-group">
+            <button data-value="random" class="active">ランダム</button>
+            <button data-value="sequential">順番</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-generate" id="btn-generate">出題</button>
+    </div>
+
+    <!-- ゲームHUD -->
+    <div class="game-hud" id="game-hud" style="display:none">
+      <span class="game-hud-timer" id="game-timer-display">00:00.00</span>
+      <span class="game-hud-counter" id="game-counter-display"></span>
+    </div>
+
+    <!-- クイズエリア -->
+    <div class="quiz-area" id="quiz-area">
+      <!-- 状況表示 -->
+      <div class="situation-bar" id="situation-bar"></div>
+
+      <!-- 手牌表示 -->
+      <div class="hand-area" id="hand-area"></div>
+
+      <!-- 待ち選択エリア（テンパイモード用） -->
+      <div class="wait-selection" id="wait-selection" style="display:none">
+        <h3>待ち牌を選んでください:</h3>
+        <div class="wait-tiles" id="wait-tiles"></div>
+      </div>
+
+      <!-- 操作ボタン -->
+      <div class="action-bar">
+        <button class="btn-home" id="btn-home" style="display:none">🏠 ホーム</button>
+        <button class="btn-check" id="btn-check">答え合わせ</button>
+        <button class="btn-next" id="btn-next">次の問題</button>
+        <button class="btn-bookmark" id="btn-bookmark" style="display:none">★ 保存する</button>
+      </div>
+
+      <!-- 結果表示 -->
+      <div class="result-area" id="result-area"></div>
+    </div>
+
+    <!-- 復習パネル -->
+    <div class="review-panel" id="review-panel">
+      <div class="review-header">
+        <h3>問題を振り返る</h3>
+        <div class="review-header-actions">
+          <button id="btn-clear-bookmarks">全削除</button>
+        </div>
+      </div>
+      <!-- セクションタブ -->
+      <div class="review-section-tabs review-filter-row">
+        <button class="filter-btn active" id="btn-review-tab-bookmark">保存した問題</button>
+        <button class="filter-btn" id="btn-review-tab-custom">✏️ 作成した問題</button>
+      </div>
+      <!-- 保存した問題セクション -->
+      <div id="bookmark-section">
+        <!-- フィルタータブ -->
+        <div class="review-filters">
+          <div class="review-filter-row">
+            <span class="filter-label">絞り込み:</span>
+            <button class="filter-btn active" data-filter-kind="all">全て</button>
+            <button class="filter-btn" data-filter-kind="wrong">間違えた問題</button>
+            <button class="filter-btn" data-filter-kind="starred">お気に入り</button>
+          </div>
+          <div class="review-filter-row">
+            <span class="filter-label">モード:</span>
+            <button class="filter-btn active" data-filter-mode="all">全て</button>
+            <button class="filter-btn" data-filter-mode="tenpai">テンパイ</button>
+            <button class="filter-btn" data-filter-mode="iishanten">イーシャンテン</button>
+          </div>
+          <div class="review-filter-row">
+            <span class="filter-label">難易度:</span>
+            <button class="filter-btn active" data-filter-difficulty="all">全て</button>
+            <button class="filter-btn" data-filter-difficulty="easy">初級</button>
+            <button class="filter-btn" data-filter-difficulty="medium">中級</button>
+            <button class="filter-btn" data-filter-difficulty="hard">上級</button>
+          </div>
+          <div class="review-filter-row">
+            <span class="filter-label">副露:</span>
+            <button class="filter-btn active" data-filter-open="all">全て</button>
+            <button class="filter-btn" data-filter-open="closed">門前</button>
+            <button class="filter-btn" data-filter-open="open">副露</button>
+          </div>
+        </div>
+        <div id="bookmark-count" class="bookmark-count"></div>
+        <div id="bookmark-list"></div>
+        <div id="bookmark-pagination" class="bookmark-pagination"></div>
+      </div>
+      <!-- 作成した問題セクション -->
+      <div id="custom-hand-review-section" style="display:none">
+        <div class="review-filters">
+          <div class="review-filter-row">
+            <span class="filter-label">モード:</span>
+            <button class="filter-btn active" data-ch-filter-mode="all">全て</button>
+            <button class="filter-btn" data-ch-filter-mode="tenpai">テンパイ</button>
+            <button class="filter-btn" data-ch-filter-mode="iishanten">イーシャンテン</button>
+          </div>
+          <div class="review-filter-row">
+            <span class="filter-label">副露:</span>
+            <button class="filter-btn active" data-ch-filter-open="all">全て</button>
+            <button class="filter-btn" data-ch-filter-open="closed">門前</button>
+            <button class="filter-btn" data-ch-filter-open="open">副露</button>
+          </div>
+        </div>
+        <div id="custom-hand-review-list"></div>
+      </div>
+    </div>
+
+    <!-- ランキングパネル -->
+    <div class="review-panel" id="leaderboard-panel">
+      <div class="review-header">
+        <h3>🏆 ランキング</h3>
+      </div>
+      <div class="review-filters">
+        <div class="review-filter-row">
+          <span class="filter-label">ゲーム:</span>
+          <button class="filter-btn active" data-lb-type="timeattack">タイムアタック</button>
+          <button class="filter-btn" data-lb-type="survival">サバイバル</button>
+        </div>
+        <div class="review-filter-row">
+          <span class="filter-label">モード:</span>
+          <button class="filter-btn active" data-lb-mode="tenpai">テンパイ</button>
+          <button class="filter-btn" data-lb-mode="iishanten">イーシャンテン</button>
+        </div>
+        <div class="review-filter-row">
+          <span class="filter-label">難易度:</span>
+          <button class="filter-btn" data-lb-difficulty="easy">初級</button>
+          <button class="filter-btn active" data-lb-difficulty="medium">中級</button>
+          <button class="filter-btn" data-lb-difficulty="hard">上級</button>
+        </div>
+        <div class="review-filter-row">
+          <span class="filter-label">副露:</span>
+          <button class="filter-btn active" data-lb-open="closed">門前</button>
+          <button class="filter-btn" data-lb-open="open">副露</button>
+        </div>
+        <div class="review-filter-row">
+          <span class="filter-label">牌種:</span>
+          <button class="filter-btn active" data-lb-suit="random">ランダム</button>
+          <button class="filter-btn" data-lb-suit="man">萬子</button>
+          <button class="filter-btn" data-lb-suit="sou">索子</button>
+          <button class="filter-btn" data-lb-suit="pin">筒子</button>
+        </div>
+      </div>
+      <div id="leaderboard-home-content"></div>
+    </div>
+
+    <!-- 苦手分析パネル -->
+    <div class="review-panel" id="weakness-panel">
+      <div class="review-header">
+        <h3>📊 苦手分析</h3>
+      </div>
+      <div id="weakness-content"></div>
+    </div>
+
+    <!-- ガチャパネル -->
+    <div class="review-panel" id="gacha-panel">
+      <div class="review-header">
+        <h3>🎰 ガチャ</h3>
+      </div>
+      <div id="gacha-content"></div>
+    </div>
+
+    <!-- 手牌入力パネル -->
+    <div class="review-panel" id="custom-hand-panel">
+      <div class="review-header">
+        <h3>✏️ 手牌を入力する</h3>
+      </div>
+      <div id="custom-hand-content"></div>
+    </div>
+
+    <!-- ゲーム結果オーバーレイ -->
+    <div class="game-result-overlay" id="game-result-overlay" style="display:none">
+      <div class="game-result-card">
+        <h2 id="game-result-title"></h2>
+        <div id="game-result-body"></div>
+        <div class="game-result-actions">
+          <button class="btn-game-action btn-game-retry" id="btn-game-retry">もう一度</button>
+          <button class="btn-game-action btn-game-back" id="btn-game-back">メニューに戻る</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/tile.js"></script>
+  <script src="js/hand.js"></script>
+  <script src="js/yaku.js"></script>
+  <script src="js/score.js"></script>
+  <script src="js/generator.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/gacha.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

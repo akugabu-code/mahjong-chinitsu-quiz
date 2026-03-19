@@ -1,0 +1,2807 @@
+/* style.css - 清一色待ち当てクイズ */
+
+:root {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-card: #0f3460;
+  --text-primary: #e8e8e8;
+  --text-secondary: #a8a8b8;
+  --accent: #e94560;
+  --accent-hover: #ff6b81;
+  --success: #2ecc71;
+  --error: #e74c3c;
+  --warning: #f39c12;
+  --tile-bg: #f5f0e1;
+  --tile-border: #8b7355;
+  --tile-text: #1a1a1a;
+  --tile-selected: #3498db;
+  --tile-correct: #27ae60;
+  --tile-wrong: #c0392b;
+  --tile-missed: #f39c12;
+  --meld-separator: 20px;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --radius: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ========== レイアウト ========== */
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+header {
+  text-align: center;
+  padding: 20px 0 10px;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  background: linear-gradient(135deg, var(--accent), #ff6b81);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+header .subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* ========== 設定パネル ========== */
+
+.settings-panel {
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin: 16px 0;
+  box-shadow: var(--shadow);
+}
+
+.settings-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.settings-row:last-child {
+  margin-bottom: 0;
+}
+
+.mode-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-left: 3px solid var(--bg-card);
+  background: rgba(255,255,255,0.03);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.hint-pts {
+  font-size: 0.75rem;
+  color: #ffd700;
+  opacity: 0.85;
+}
+
+.mode-hint:empty {
+  display: none;
+}
+
+.mode-hint strong {
+  color: var(--text-primary);
+}
+
+.setting-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-group label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.btn-group {
+  display: flex;
+  gap: 4px;
+}
+
+#gametype-group {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.btn-group button {
+  padding: 6px 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-group button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.btn-group button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-generate {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--accent), #ff6b81);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow);
+}
+
+.btn-generate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(233, 69, 96, 0.4);
+}
+
+.btn-generate:active {
+  transform: translateY(0);
+}
+
+/* ========== クイズエリア ========== */
+
+.quiz-area {
+  display: none;
+}
+
+.quiz-area.visible {
+  display: block;
+}
+
+/* 状況表示 */
+.situation-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.situation-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.situation-label {
+  color: var(--text-secondary);
+}
+
+.situation-value {
+  font-weight: bold;
+  color: var(--warning);
+}
+
+/* 手牌表示エリア */
+.hand-area {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 0 0 12px;
+  min-height: 78px;
+}
+
+.hand-area .meld-separator {
+  width: var(--meld-separator);
+  flex-shrink: 0;
+}
+
+/* ========== 牌のCSS（画像方式） ========== */
+
+.tile {
+  width: 46px;
+  height: 62px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  border-radius: 5px;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+/* 副露の横向き牌 */
+.tile.sideways {
+  width: 62px;
+  height: 46px;
+}
+
+.tile.sideways img {
+  transform: rotate(90deg);
+  width: 46px;
+  height: 62px;
+}
+
+/* 小さい牌（待ち選択用） */
+.tile.tile-small {
+  width: 38px;
+  height: 52px;
+}
+
+/* 選択可能 */
+.tile.clickable {
+  cursor: pointer;
+}
+
+.tile.clickable:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.35);
+}
+
+/* イーシャンテン: 手牌クリックで上にずらす */
+.tile.selected-discard {
+  transform: translateY(-16px);
+  box-shadow: 0 0 12px rgba(52,152,219,0.8);
+}
+
+/* 待ち選択用 */
+.tile.selected-wait {
+  outline: 2.5px solid #3498db;
+  outline-offset: 1px;
+  box-shadow: 0 0 10px rgba(52,152,219,0.45);
+}
+
+.tile.selected-wait::after {
+  display: none;
+}
+
+/* 答え合わせ結果 */
+.tile.result-correct {
+  outline: 2.5px solid #27ae60;
+  outline-offset: 1px;
+  box-shadow: 0 0 10px rgba(39,174,96,0.5);
+}
+
+.tile.result-wrong {
+  outline: 2.5px solid #c0392b;
+  outline-offset: 1px;
+  box-shadow: 0 0 10px rgba(192,57,43,0.5);
+}
+
+.tile.result-missed {
+  outline: 2.5px solid var(--tile-missed);
+  outline-offset: 1px;
+  box-shadow: 0 0 10px rgba(243,156,18,0.5);
+}
+
+/* ========== 待ち選択エリア ========== */
+
+.wait-selection {
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.wait-selection h3 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.wait-tiles {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ========== 操作ボタン ========== */
+
+.action-bar {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.btn-check {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-check:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-next {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 2px solid var(--success);
+  border-radius: var(--radius);
+  color: var(--success);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+
+.btn-next:hover {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-home {
+  padding: 12px 14px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-home:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ========== 結果表示 ========== */
+
+.result-area {
+  display: none;
+  margin: 16px 0;
+}
+
+.result-area.visible {
+  display: block;
+}
+
+.result-summary {
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.result-summary .score-line {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.result-summary .perfect {
+  color: var(--success);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.result-detail {
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 8px;
+}
+
+.result-detail h4 {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+
+.wait-result-item {
+  background: rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.wait-result-item:last-child {
+  margin-bottom: 0;
+}
+
+.wait-result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.wait-result-header .mark {
+  font-size: 1.2rem;
+}
+
+.wait-result-header .wait-tile-label {
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.wait-result-header .remaining-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.wait-result-body {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.wait-result-body .yaku-line {
+  margin-bottom: 2px;
+}
+
+.wait-result-body .score-text {
+  color: var(--warning);
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+/* イーシャンテン結果 */
+.discard-result-item {
+  background: rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 8px;
+}
+
+.discard-result-item.best-discard {
+  border: 1px solid var(--success);
+}
+
+.discard-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.discard-acceptance {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-left: 2px;
+}
+
+.discard-header .best-badge {
+  background: var(--success);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.discard-waits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.discard-waits .wait-chip {
+  background: rgba(255,255,255,0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.discard-summary {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* ========== 手牌分解表示 ========== */
+
+.decomp-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.decomp-group {
+  display: flex;
+  gap: 1px;
+  padding: 2px 4px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+}
+
+.decomp-group.head-group {
+  border-bottom: 2px solid var(--warning);
+}
+
+.tile-mini {
+  width: 28px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tile-mini img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+/* ========== レスポンシブ ========== */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 10px;
+  }
+
+  header h1 {
+    font-size: 1.2rem;
+  }
+
+  .tile {
+    width: 36px;
+    height: 48px;
+  }
+
+  .tile.sideways {
+    width: 48px;
+    height: 36px;
+  }
+
+  .tile.sideways img {
+    width: 36px;
+    height: 48px;
+  }
+
+  .tile.tile-small {
+    width: 35px;
+    height: 47px;
+  }
+
+  .tile-mini {
+    width: 22px;
+    height: 30px;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #gametype-group button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .setting-group .btn-group {
+    flex-wrap: wrap;
+    row-gap: 4px;
+  }
+
+  .setting-group .btn-group button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .hand-area {
+    flex-wrap: nowrap;
+    overflow: visible;
+    justify-content: center;
+    gap: 1px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  /* 牌を画面幅に収まるよう動的サイズ: 14枚+13gapが100vw-20px(パディング)に入る */
+  #hand-area .tile {
+    width: calc((100vw - 33px) / 14);
+    height: calc((100vw - 33px) / 14 * 1.348);
+    flex-shrink: 0;
+  }
+
+  #hand-area .tile.sideways {
+    width: calc((100vw - 33px) / 14 * 1.348);
+    height: calc((100vw - 33px) / 14);
+  }
+
+  #hand-area .tile.sideways img {
+    width: calc((100vw - 33px) / 14);
+    height: calc((100vw - 33px) / 14 * 1.348);
+  }
+
+  #hand-area .meld-separator {
+    width: calc((100vw - 33px) / 28);
+    flex-shrink: 0;
+  }
+
+  .tile.selected-discard {
+    transform: translateY(-10px);
+  }
+
+  .wait-selection {
+    padding: 10px;
+  }
+
+  .wait-tiles {
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    gap: 2px;
+  }
+
+  .situation-bar {
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+
+  /* 飾り棚: スロットを1行に */
+  .showcase-slots {
+    flex-wrap: nowrap;
+    overflow: visible;
+    justify-content: center;
+  }
+
+  /* --- Phase 1: パネル余白削減 --- */
+  .settings-panel {
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .review-panel {
+    padding: 12px;
+    margin-top: 10px;
+  }
+
+  header {
+    padding: 10px 0 4px;
+  }
+
+  .bookmark-empty {
+    padding: 12px;
+  }
+
+  .game-result-card {
+    padding: 20px 16px;
+  }
+
+  /* --- Phase 2: ボタン・操作エリア縮小 --- */
+  .action-bar {
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .btn-check,
+  .btn-next {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .btn-generate {
+    padding: 10px;
+  }
+
+  .detail-toggle-btn {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+  }
+
+  .btn-ch-analyze {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  /* --- Phase 3: ゲームHUD・結果画面最適化 --- */
+  .game-hud {
+    gap: 8px;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .game-hud-timer {
+    font-size: 1.1rem;
+    min-width: 70px;
+  }
+
+  .game-result-card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .game-result-actions {
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .btn-game-action {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+
+  /* --- Phase 4: 各モード固有修正 --- */
+  .weakness-overview {
+    gap: 8px;
+    padding: 8px;
+    margin-bottom: 10px;
+  }
+
+  .btn-gacha-pull {
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .gacha-pull-buttons {
+    gap: 8px;
+  }
+
+  .ch-settings {
+    gap: 8px 12px;
+    margin-bottom: 10px;
+  }
+
+  .stats-bar {
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 0.72rem;
+  }
+
+  .discard-result-item {
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+
+  .discard-header {
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .filter-label {
+    width: auto;
+    font-size: 0.7rem;
+  }
+
+  .filter-btn {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+  }
+
+  .review-filter-row {
+    padding-left: 0;
+  }
+
+  .review-filter-row .filter-label {
+    width: auto;
+    margin-left: 0;
+  }
+
+  .mode-hint {
+    font-size: 0.72rem;
+    padding: 4px 8px;
+    line-height: 1.4;
+  }
+
+  /* --- Phase 5: 面子分解表示の1行化 --- */
+  .decomp-display {
+    flex-wrap: nowrap;
+  }
+
+  .decomp-group {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .decomp-group .tile-mini {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+}
+
+/* ========== 統計バー ========== */
+
+.stats-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.03);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  min-height: 34px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.stats-item {
+  color: var(--text-secondary);
+}
+
+.stats-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.stats-empty {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.stats-bm {
+  margin-left: auto;
+  color: var(--warning);
+  font-size: 0.75rem;
+}
+
+/* ========== 復習トグルボタン ========== */
+
+.btn-review-toggle {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.btn-review-toggle:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  border-color: rgba(255,255,255,0.32);
+}
+
+/* ========== ブックマークボタン ========== */
+
+.btn-bookmark {
+  padding: 12px 14px;
+  background: transparent;
+  border: 2px solid var(--warning);
+  border-radius: var(--radius);
+  color: var(--warning);
+  font-size: 0.88rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-bookmark:hover:not(:disabled) {
+  background: var(--warning);
+  color: #fff;
+}
+
+.btn-bookmark:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ========== 復習パネル ========== */
+
+.review-panel {
+  display: none;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: var(--shadow);
+}
+
+.review-panel.visible {
+  display: block;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.review-header h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.review-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.review-header-actions button {
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#btn-clear-bookmarks {
+  background: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+}
+
+#btn-clear-bookmarks:hover {
+  background: var(--error);
+  color: #fff;
+}
+
+#btn-review-close {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-secondary);
+}
+
+#btn-review-close:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text-primary);
+}
+
+/* ブックマークアイテムは復習パネルフィルター後のブロックで定義済み */
+
+.bm-badge {
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.bm-badge-wrong {
+  background: rgba(231,76,60,0.2);
+  color: #e74c3c;
+  border: 1px solid rgba(231,76,60,0.4);
+}
+
+.bm-badge-star {
+  background: rgba(243,156,18,0.2);
+  color: var(--warning);
+  border: 1px solid rgba(243,156,18,0.4);
+}
+
+.bm-mode {
+  font-size: 0.84rem;
+  color: var(--text-primary);
+}
+
+.bm-date {
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+}
+
+.btn-bm-replay {
+  padding: 5px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--success);
+  color: var(--success);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-bm-replay:hover {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-bm-remove {
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-bm-remove:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.bookmark-empty {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 24px;
+  font-size: 0.88rem;
+  line-height: 1.8;
+}
+
+/* ========== 復習パネル フィルタータブ ========== */
+
+.review-section-tabs {
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 12px;
+}
+
+.review-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 6px;
+}
+
+.review-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  width: 58px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.filter-btn {
+  padding: 4px 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 12px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+}
+
+.filter-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.bookmark-count {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+
+/* ========== ブックマークアイテム プレビュー ========== */
+
+.bookmark-item {
+  background: rgba(0,0,0,0.2);
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  border-left: 3px solid transparent;
+}
+
+.bookmark-item.bookmark-wrong { border-left-color: var(--error); }
+.bookmark-item.bookmark-starred { border-left-color: var(--warning); }
+
+.bookmark-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.bookmark-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.bm-preview {
+  display: flex;
+  gap: 1px;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  padding: 6px 8px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  min-height: 38px;
+  overflow: visible;
+}
+
+.bm-preview::-webkit-scrollbar {
+  display: none;
+}
+
+/* プレビュー内のmini牌は横幅に収まるよう自動縮小 */
+.bm-preview .tile-mini,
+.ch-saved-preview .tile-mini {
+  flex-shrink: 1;
+  min-width: 0;
+  width: clamp(16px, calc((100vw - 80px) / 17), 28px);
+  height: clamp(22px, calc((100vw - 80px) / 17 * 1.357), 38px);
+}
+
+.bm-preview-sep {
+  display: inline-block;
+  width: 10px;
+  flex-shrink: 0;
+}
+
+.bm-preview-sideways {
+  transform: rotate(90deg);
+  transform-origin: center;
+  margin: 3px 5px;
+}
+
+.bm-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ========== イーシャンテン答え: テンパイ手牌ミニ表示 ========== */
+
+.discard-tenpai-hand {
+  display: flex;
+  gap: 2px;
+  flex-wrap: nowrap;
+  margin: 6px 0;
+  padding: 6px 8px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 4px;
+}
+
+.discard-tenpai-hand .tile-mini {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+/* 待ち牌ビジュアル行 */
+.discard-wait-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.discard-wait-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+/* 待ち一覧（縦並び） */
+.discard-waits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* 待ちエントリー（チップ＋面子分解を横にまとめる） */
+.discard-wait-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.discard-wait-entry .discard-wait-chip {
+  align-self: center;
+}
+
+/* 待ちエントリー内の面子分解を少し下げない */
+.discard-wait-decomp {
+  margin-top: 0;
+}
+
+.discard-wait-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(52, 152, 219, 0.12);
+  border: 1px solid rgba(52, 152, 219, 0.35);
+  border-radius: 4px;
+  padding: 2px 6px 2px 3px;
+}
+
+.discard-wait-count {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+
+/* ========== ゲームモード ========== */
+
+.settings-panel.game-active {
+  display: none;
+}
+
+.game-hud {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+  font-size: 0.95rem;
+}
+
+.game-hud-timer {
+  font-family: 'Courier New', monospace;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--warning);
+  min-width: 100px;
+}
+
+.game-hud-timer.timer-danger {
+  color: var(--error);
+  animation: timer-blink 0.5s infinite;
+}
+
+@keyframes timer-blink {
+  50% { opacity: 0.5; }
+}
+
+.game-hud-counter {
+  color: var(--text-primary);
+  font-weight: bold;
+}
+
+.game-hud-abort {
+  margin-left: auto;
+  padding: 6px 16px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.game-hud-abort:hover {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+/* ゲーム結果オーバーレイ */
+
+.game-result-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.game-result-card {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 32px 40px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  animation: result-appear 0.3s ease-out;
+}
+
+@keyframes result-appear {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.game-result-card h2 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.game-result-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.game-result-stat:last-of-type {
+  border-bottom: none;
+}
+
+.game-result-stat-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.game-result-stat-value {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.game-result-time {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  color: var(--warning);
+}
+
+.game-result-score {
+  font-size: 1.3rem;
+  color: var(--success);
+}
+
+.game-result-pts {
+  color: #ffd700;
+  font-size: 1.1rem;
+}
+
+.game-result-perfect {
+  margin-top: 16px;
+  color: var(--success);
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.game-result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-game-action {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-game-retry {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+}
+
+.btn-game-retry:hover {
+  background: var(--accent-hover);
+}
+
+.btn-game-back {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-secondary);
+}
+
+.btn-game-back:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+}
+
+/* ========== ランキングテーブル ========== */
+
+.leaderboard {
+  margin-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 16px;
+}
+
+.leaderboard-title {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.leaderboard-table th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  text-align: left;
+}
+
+.leaderboard-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  color: var(--text-primary);
+}
+
+.leaderboard-table tr.rank-1 td {
+  color: #ffd700;
+  font-weight: bold;
+}
+
+.leaderboard-table tr.rank-2 td {
+  color: #c0c0c0;
+}
+
+.leaderboard-table tr.rank-3 td {
+  color: #cd7f32;
+}
+
+.lb-time {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+.lb-score {
+  font-weight: bold;
+  color: var(--success);
+}
+
+.lb-settings {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.lb-date {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+/* ========== 苦手分析 ========== */
+
+.weakness-overview {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border-radius: var(--radius);
+}
+
+.weakness-stat {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.weakness-chart-section {
+  margin-bottom: 20px;
+}
+
+.weakness-chart-section h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.weakness-bar-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wbc-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.wbc-label {
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.wbc-track {
+  flex: 1;
+  height: 16px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.wbc-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.wbc-value {
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+.wbc-count {
+  width: 44px;
+  text-align: left;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.wbc-wall {
+  background: rgba(243, 156, 18, 0.12);
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.wbc-wall .wbc-fill {
+  background: var(--warning);
+}
+
+.wbc-wall-note {
+  font-size: 0.82rem;
+  color: var(--warning);
+  margin: 6px 0 0;
+}
+
+.weakness-messages {
+  margin-bottom: 16px;
+}
+
+.weakness-messages h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.weakness-card {
+  background: var(--bg-secondary);
+  border-left: 4px solid var(--warning);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.weakness-card-good {
+  border-left-color: var(--success);
+}
+
+.weakness-card-title {
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.weakness-card-message {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.weakness-card-detail {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.weakness-card-advice {
+  font-size: 0.82rem;
+  color: var(--accent);
+  margin-top: 6px;
+}
+
+.weakness-breakdown {
+  margin-top: 16px;
+}
+
+.weakness-breakdown h4 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.weakness-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.weakness-table th,
+.weakness-table td {
+  padding: 6px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.weakness-table td small {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.weakness-table th {
+  background: var(--bg-secondary);
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.weakness-row-weak {
+  background: rgba(243, 156, 18, 0.1);
+}
+
+/* ========== 状況バー: ドラ牌画像 ========== */
+
+.situation-dora-tile {
+  display: inline-flex;
+  align-items: center;
+}
+
+.situation-dora-tile .tile-mini {
+  width: 24px;
+  height: 33px;
+}
+
+/* ========== 正解牌の画像行 ========== */
+
+.result-correct-tiles {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  align-items: center;
+}
+
+/* ========== 詳細タブボタン ========== */
+
+.detail-toggle-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 8px;
+  transition: background 0.15s;
+}
+
+.detail-toggle-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-primary);
+}
+
+/* ========== 面子分解: 待ち牌ハイライト ========== */
+
+.decomp-win-tile {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(233, 69, 96, 0.6);
+}
+
+/* ========== ブックマークページネーション ========== */
+
+.bookmark-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.pagination-btn {
+  padding: 6px 14px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pagination-info {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ========== 手牌入力 ========== */
+
+.ch-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+}
+
+.ch-dora-section {
+  margin-bottom: 14px;
+}
+
+.ch-dora-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.ch-dora-note {
+  font-weight: bold;
+  color: var(--accent);
+}
+
+.ch-dora-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.ch-dora-btn {
+  padding: 4px 8px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  transition: border-color 0.15s;
+}
+
+.ch-dora-btn.active {
+  border-color: var(--accent);
+  background: rgba(233, 69, 96, 0.15);
+}
+
+.ch-dora-tile-btn {
+  padding: 2px;
+  background: none;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  line-height: 0;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.ch-dora-tile-btn.active {
+  border-color: var(--accent);
+  background: rgba(233, 69, 96, 0.15);
+}
+
+.ch-input-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 10px;
+}
+
+.ch-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.88rem;
+}
+
+.ch-clear-btn {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  border-radius: 4px;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.ch-tile-grid {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.ch-tile-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.ch-tile-btn {
+  padding: 2px;
+  background: none;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  line-height: 0;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.ch-dora-tile-btn .tile-mini,
+.ch-tile-btn .tile-mini {
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.ch-tile-btn:hover:not(.disabled) {
+  border-color: var(--accent);
+}
+
+.ch-tile-btn.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ch-count-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 20px;
+}
+
+.ch-tile-count {
+  font-size: 0.75rem;
+  min-width: 14px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.ch-tile-count.has-tiles {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.ch-tile-remove-btn {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.75rem;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.ch-tile-remove-btn:hover {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.ch-hand-display-section {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  min-height: 48px;
+}
+
+.ch-hand-display {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  align-items: flex-end;
+}
+
+.ch-hand-display .tile-mini {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.ch-hand-sep {
+  margin: 0 3px;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.ch-meld-tile {
+  border: 1px solid #3498db;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+.btn-ch-analyze {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: opacity 0.15s;
+}
+
+.btn-ch-analyze:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ch-result-area {
+  margin-bottom: 8px;
+}
+
+/* ========== ガチャ ========== */
+
+.gacha-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.gacha-tab {
+  flex: 1;
+  padding: 8px 4px;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.gacha-tab.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.gacha-points-bar {
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 8px;
+  margin-bottom: 12px;
+  background: rgba(255,215,0,0.1);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: var(--radius);
+}
+
+.stats-points {
+  color: #ffd700;
+}
+
+/* ガチャ抽選タブ */
+
+.gacha-pull-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.btn-gacha-pull {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+  color: var(--text-primary);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-gacha-pull:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233,69,96,0.4);
+}
+
+.btn-gacha-pull:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-gacha-multi {
+  border-color: #ffd700;
+}
+
+.gacha-cost {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* ガチャ結果カード */
+
+.gacha-result-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.gacha-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  border-radius: var(--radius);
+  border: 2px solid rgba(255,255,255,0.2);
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.gacha-card-rarity {
+  font-size: 0.65rem;
+  font-weight: bold;
+  padding: 3px 4px 2px;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.gacha-card-tile {
+  display: block;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.gacha-card-name {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  padding: 2px 4px 4px;
+  text-align: center;
+}
+
+.gacha-card-colorname {
+  font-weight: normal;
+  font-size: 0.6rem;
+  opacity: 0.85;
+  display: block;
+}
+
+/* レアリティカラー */
+
+.rarity-secret {
+  border-color: #ffd700 !important;
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1)) !important;
+}
+.rarity-secret .gacha-card-rarity,
+.rarity-secret .gacha-rarity-title,
+.rarity-secret h5 {
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255,215,0,0.5);
+}
+
+.rarity-ssr {
+  border-color: #ff6b6b !important;
+  background: linear-gradient(135deg, rgba(255,107,107,0.12), rgba(255,69,96,0.08)) !important;
+}
+.rarity-ssr .gacha-card-rarity,
+.rarity-ssr .gacha-rarity-title,
+.rarity-ssr h5 {
+  color: #ff6b6b;
+}
+
+.rarity-sr {
+  border-color: #a855f7 !important;
+  background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(139,92,246,0.08)) !important;
+}
+.rarity-sr .gacha-card-rarity,
+.rarity-sr .gacha-rarity-title,
+.rarity-sr h5 {
+  color: #a855f7;
+}
+
+.rarity-r {
+  border-color: #3b82f6 !important;
+  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(37,99,235,0.06)) !important;
+}
+.rarity-r .gacha-card-rarity,
+.rarity-r .gacha-rarity-title,
+.rarity-r h5 {
+  color: #3b82f6;
+}
+
+.rarity-n {
+  border-color: rgba(255,255,255,0.3) !important;
+}
+.rarity-n .gacha-card-rarity,
+.rarity-n .gacha-rarity-title,
+.rarity-n h5 {
+  color: var(--text-secondary);
+}
+
+/* コレクション */
+
+.gacha-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 10px;
+  justify-content: center;
+}
+
+.gacha-collection-header {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+}
+
+.gacha-rate-overall {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.gacha-rate-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  justify-content: center;
+  font-size: 0.78rem;
+}
+
+.gacha-rate-item {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+}
+
+.gacha-rarity-section {
+  margin-bottom: 16px;
+}
+
+.gacha-rarity-title {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.gacha-rarity-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gacha-color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+}
+
+.gacha-color-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  width: 52px;
+  text-align: right;
+  padding-right: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gacha-card-colorname {
+  font-size: 0.7rem;
+  font-weight: normal;
+  opacity: 0.85;
+}
+
+.gacha-col-tile {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 2px;
+  cursor: default;
+}
+
+.gacha-col-img {
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  display: block;
+}
+
+.gacha-col-empty {
+  opacity: 0.25;
+}
+
+.gacha-col-silhouette {
+  filter: brightness(0) saturate(0);
+}
+
+.gacha-col-count {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: var(--accent);
+  color: white;
+  font-size: 0.6rem;
+  padding: 0 3px;
+  border-radius: 3px;
+  line-height: 1.3;
+}
+
+/* 飾り棚 */
+
+.showcase-area {
+  text-align: center;
+}
+
+.showcase-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.showcase-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.btn-showcase-clear {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--error);
+  color: var(--error);
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-showcase-clear:hover {
+  background: rgba(231, 76, 60, 0.15);
+}
+
+.showcase-slots {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.showcase-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.showcase-slot {
+  /* 9枚行基準: (利用可能幅 - gap8本) / 9 。最大56px */
+  width: clamp(28px, calc((100vw - 112px - 32px) / 9), 56px);
+  height: clamp(40px, calc((100vw - 112px - 32px) / 9 * 1.348), 80px);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+  background: var(--bg-secondary);
+}
+
+.showcase-slot:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.showcase-slot-filled:hover {
+  border-color: var(--error) !important;
+  transform: translateY(-2px);
+  cursor: pointer;
+}
+
+.showcase-slot-empty {
+  background: rgba(255,255,255,0.03);
+}
+
+.showcase-slot-plus {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  opacity: 0.4;
+}
+
+.showcase-slot-tile {
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+
+/* 飾り棚ピッカー（一括編集） */
+
+.showcase-picker-title {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 10px 0 6px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+}
+
+.showcase-bulk-picker {
+  /* コンテナ */
+}
+
+.showcase-picker-section {
+  margin-bottom: 8px;
+}
+
+.showcase-picker-section h5 {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+.showcase-picker-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.showcase-picker-tile {
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.showcase-picker-tile:hover:not(.tile-maxed) {
+  border-color: var(--accent);
+  transform: scale(1.1);
+}
+
+.tile-maxed {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.showcase-tile-remaining {
+  position: absolute;
+  bottom: 1px;
+  right: 2px;
+  font-size: 0.55rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 2px #000, 0 0 2px #000;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.remaining-zero {
+  color: var(--error);
+}
+
+.ch-result-header {
+  font-size: 1rem;
+  padding: 10px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ch-result-badge {
+  background: var(--accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  margin-left: 8px;
+  font-weight: normal;
+}
+
+.ch-result-error {
+  color: var(--error);
+  padding: 12px;
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: var(--radius);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.ch-wait-item {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 6px;
+}
+
+.ch-wait-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ch-wait-rem {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.ch-wait-type {
+  font-size: 0.77rem;
+  background: rgba(255,255,255,0.1);
+  padding: 2px 6px;
+  border-radius: 10px;
+  color: var(--text-secondary);
+}
+
+.ch-wait-body {
+  font-size: 0.85rem;
+  padding-left: 2px;
+}
+
+.ch-yaku-line {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.ch-score-text {
+  font-weight: bold;
+  color: var(--accent);
+  margin-top: 4px;
+  font-size: 0.95rem;
+}
+
+.ch-discard-item {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-left: 4px solid rgba(255,255,255,0.08);
+}
+
+.ch-discard-item.ch-discard-best {
+  border-left-color: var(--success);
+  background: rgba(46, 204, 113, 0.05);
+}
+
+.ch-discard-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.ch-discard-acc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.ch-best-badge {
+  background: var(--success);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+}
+
+.ch-discard-waits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ch-wait-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.ch-save-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: var(--success);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: opacity 0.15s;
+}
+
+.ch-save-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.ch-saved-section {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 14px;
+  margin-top: 8px;
+}
+
+.ch-saved-header h4 {
+  font-size: 0.95rem;
+  margin: 0 0 10px;
+}
+
+.ch-saved-item {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+
+.ch-saved-item-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.ch-saved-info {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.ch-saved-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ch-saved-preview {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  overflow: visible;
+}
+
+.ch-saved-preview::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── 手牌入力 追加スタイル ─── */
+
+.ch-dora-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.ch-dora-arrow {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.ch-dora-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px 0 10px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.ch-dora-count {
+  font-weight: bold;
+  color: var(--accent);
+  font-size: 0.85rem;
+}
+
+.ch-yaku-total {
+  font-weight: bold;
+  color: var(--text-primary);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.ch-discard-hand {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  align-items: flex-end;
+  margin-bottom: 8px;
+  padding: 6px 0 6px 4px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 4px;
+}
+
+.ch-discard-hand .tile-mini {
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+.ch-wait-chip-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.ch-decomp-entry {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ch-decomp-entry:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.ch-decomp-entry-hdr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* ─── プレビュー牌クリック ─── */
+
+.ch-preview-tile {
+  cursor: pointer;
+  transition: opacity 0.12s, transform 0.1s;
+}
+
+.ch-preview-tile:hover {
+  opacity: 0.65;
+  transform: translateY(-3px);
+}
+
+/* ─── 解析結果サマリー ─── */
+
+.ch-tile-summary {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.ch-summary-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.ch-summary-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ch-summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.05);
+  padding: 4px 8px 4px 4px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.ch-summary-chip.ch-summary-best {
+  border-color: var(--success);
+  background: rgba(46, 204, 113, 0.1);
+}
+
+.ch-summary-rem {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.ch-summary-total {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
