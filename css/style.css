@@ -2299,6 +2299,81 @@ header .subtitle {
   opacity: 0.85;
 }
 
+/* ガチャ拡大モーダル */
+#gacha-zoom-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#gacha-zoom-modal.hidden {
+  display: none;
+}
+
+.gacha-zoom-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+}
+
+.gacha-zoom-content {
+  position: relative;
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 28px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.gacha-zoom-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.gacha-zoom-close:hover {
+  color: #fff;
+}
+
+.gacha-zoom-rarity {
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+}
+
+.gacha-zoom-img {
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.gacha-zoom-name {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #e0e0e0;
+}
+
+.gacha-zoom-detail {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
 .gacha-col-tile {
   position: relative;
   border: 1px solid rgba(255,255,255,0.15);

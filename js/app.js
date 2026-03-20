@@ -1,7 +1,14 @@
 // app.js - アプリ初期化 + 統計 + ブックマーク + ゲームモード
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ========== 状態 ==========
+  // ========== ガチャ拡大モーダル ==========
+  const gachaZoomModal = document.getElementById('gacha-zoom-modal');
+  if (gachaZoomModal) {
+    const closeModal = () => gachaZoomModal.classList.add('hidden');
+    gachaZoomModal.querySelector('.gacha-zoom-close').addEventListener('click', closeModal);
+    gachaZoomModal.querySelector('.gacha-zoom-backdrop').addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  }
   let currentMode = 'tenpai';
   let currentOpen = 'closed';
   let currentDifficulty = 'medium';
@@ -2050,6 +2057,25 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
+    // コレクション 牌タップ拡大
+    container.querySelectorAll('.gacha-col-tile[data-rarity]').forEach(tile => {
+      tile.addEventListener('click', () => {
+        const { rarity, color, tile: tileId, count, name } = tile.dataset;
+        const cfg = Gacha.RARITY_CONFIG[rarity];
+        const colorName = cfg.colorNames[parseInt(color) - 1] || `#${color}`;
+        const item = { rarity, colorIndex: parseInt(color), tileId };
+        const ZOOM = 3;
+        const style = Gacha.getSpriteStyle(item, 40 * ZOOM, 59 * ZOOM);
+        const styleStr = Object.entries(style).map(([k,v]) => `${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}:${v}`).join(';');
+        const modal = document.getElementById('gacha-zoom-modal');
+        modal.querySelector('.gacha-zoom-img').setAttribute('style', styleStr);
+        modal.querySelector('.gacha-zoom-name').textContent = name;
+        modal.querySelector('.gacha-zoom-detail').textContent = `${cfg.label} / ${colorName} / ×${count}`;
+        modal.querySelector('.gacha-zoom-rarity').className = `gacha-zoom-rarity ${cfg.cssClass}`;
+        modal.classList.remove('hidden');
+      });
+    });
+
     // 飾り棚ピッカー フィルターイベント
     container.querySelectorAll('[data-showcase-filter]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -2180,7 +2206,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const styleStr = Object.entries(style).map(([k,v]) => `${k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase())}:${v}`).join(';');
 
           if (count > 0) {
-            html += `<div class="gacha-col-tile ${cfg.cssClass}" title="${name} ×${count}">
+            html += `<div class="gacha-col-tile ${cfg.cssClass}" title="${name} ×${count}"
+              data-rarity="${rarity}" data-color="${c}" data-tile="${tileId}" data-count="${count}" data-name="${name}">
               <div class="gacha-col-img" style="${styleStr}"></div>
               <span class="gacha-col-count">${count}</span>
             </div>`;
